@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
       - name: Generate build files
         uses: thatisuday/go-cross-build@v1
         with:
@@ -23,3 +24,13 @@ jobs:
             name: 'gohi'
             compress: 'true'
             dest: 'dist'
+
+      - name: Upload Windows Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/gohi-windows-amd64.tar.gz
+          asset_name: gohi-windows-amd64.tar.gz
+          asset_content_type: application/x-compressed-tar
