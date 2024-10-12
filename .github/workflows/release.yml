@@ -10,6 +10,8 @@ on:
 # workflow tasks
 jobs:
   generate:
+    permissions:
+      contents: write
     name: Generate cross-platform builds
     runs-on: ubuntu-latest
     steps:
