@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: install stuff
-        run:  apt-get utdate; apt-get install -y  gcc libgtk-3-dev libayatana-appindicator3-dev
+        run:  apt-get update; apt-get install -y  gcc libgtk-3-dev libayatana-appindicator3-dev
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -64,8 +64,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-
-        # crossbuild binary is in the root of the build-dependencies container
+      # crossbuild binary is in the root of the build-dependencies container
       - name: Build Linux executable
         env:
           SUFFIX: linux-amd64
