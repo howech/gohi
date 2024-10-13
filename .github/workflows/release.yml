@@ -29,6 +29,8 @@ jobs:
       image: "docker.io/jedich/crossbuild-with-deps:main"
 
     steps:
+      - name: install stuff
+        run:  apt-get install -y  gcc libgtk-3-dev libayatana-appindicator3-dev
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -58,6 +60,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: install stuff
+        run:  apt-get install -y  gcc libgtk-3-dev libayatana-appindicator3-dev
 
         # crossbuild binary is in the root of the build-dependencies container
       - name: Build Linux executable
