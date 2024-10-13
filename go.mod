@@ -1,4 +1,4 @@
-module github.com/unchained-capital/gpg-bridge
+module github.com/howech/gohi
 
 go 1.22.2
 

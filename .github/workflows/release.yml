@@ -1,45 +1,76 @@
-# workflow name
-name: Release
-
-# on events
 on:
-  #release:
-  #  types:
-  #      - created
   push:
-  pull_request:
+    branches:
+      - 'main'
+      - 'test'
 
+name: Create Release
 
-# workflow tasks
+env:
+  NAME: gohi
+  ENVIRONMENT: prod
+
 jobs:
-  generate:
-    permissions:
-      contents: write
-    name: Generate cross-platform builds
+  # Step 1: Check for changes in specific files and build dependencies if needed
+#  check-deps:
+#    uses: ./.github/workflows/build-dependencies.yaml
+#    secrets: inherit
+#    permissions:
+#      pull-requests: read
+#      contents: read
+
+  # Step 2: Build binaries for Linux and Windows
+  build-bin-win:
+    name: Build Windows Binary
     runs-on: ubuntu-latest
+ #   needs: [ check-deps ]
+
+    container:
+      image: "docker.io/jedich/crossbuild-with-deps:main"
+
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Install appindicator
-        run: sudo apt-get install -y  gcc libgtk-3-dev libayatana-appindicator3-dev
+        # crossbuild binary is in the root of the build-dependencies container
+      - name: Build Windows executable
+        env:
+          SUFFIX: windows-amd64.exe
+          CGO_ENABLED: 1
+          ENV: ${{ env.ENVIRONMENT }}
+        run: |
+          /crossbuild -p "windows/amd64" --build-cmd "make build-ci"
 
-      - name: Generate build files
-        uses: thatisuday/go-cross-build@v1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
         with:
-            platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-            #package: ''
-            name: 'gohi'
-            compress: 'true'
-            dest: 'dist'
+          name: main
+          path: ./bin/
 
+  build-bin-linux:
+    name: Build Linux Binary
+    runs-on: ubuntu-latest
+#    needs: [ check-deps ]
 
-#      - name: Upload Windows Asset
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ github.event.release.upload_url }}
-#          asset_path: ./dist/gohi-windows-amd64.tar.gz
-#          asset_name: gohi-windows-amd64.tar.gz
-#          asset_content_type: application/x-compressed-tar
+    container:
+      image: "docker.io/jedich/crossbuild-with-deps:main"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+        # crossbuild binary is in the root of the build-dependencies container
+      - name: Build Linux executable
+        env:
+          SUFFIX: linux-amd64
+          CGO_ENABLED: 1
+          ENV: ${{ env.ENVIRONMENT }}
+        run: |
+          /crossbuild -p "linux/amd64" --build-cmd "make build-ci"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: main
+          path: ./bin/
+
